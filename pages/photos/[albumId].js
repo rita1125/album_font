@@ -11,7 +11,7 @@ import { HiLibrary, HiZoomIn, HiCog } from "react-icons/hi";
 export async function getServerSideProps(context) {
   //訪問 /photos/12 時，12 作為 albumId 會自動傳遞到 getServerSideProps 的 params
   const { albumId } = context.params;  //只會在動態路由頁面中出現，取路由中的動態參數
-  const frontApiUrl = process.env.FRONT_API_URL || 'http://localhost:3000';
+  const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
   const response = await axios.get(`${frontApiUrl}/api/photos/${albumId}`);
   const data = response.data.result;
   //console.log('Data :', data);

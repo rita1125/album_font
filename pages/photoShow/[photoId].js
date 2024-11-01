@@ -8,7 +8,7 @@ import { HiLibrary, HiReply , HiCog } from "react-icons/hi";
 // 在伺服器端抓取資料
 export async function getServerSideProps(context) {
   const { photoId } = context.params; 
-  const frontApiUrl = process.env.FRONT_API_URL || 'http://localhost:3000';
+  const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
   try {
     // 傳遞 photoId 作為查詢參數
     // axios選項，用來構建 URL查詢參數，在 GET 請求中。它會自動將 params中的 key-value 對附加到 URL 後，形成完整的查詢字串

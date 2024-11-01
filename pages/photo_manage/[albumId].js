@@ -13,7 +13,7 @@ import { verifyToken } from '../../utils/token';             //驗證token
 // 在伺服器端抓取資料
 export async function getServerSideProps(context) {
   const { albumId } = context.query;  //取得 URL 所有查詢字符串參數
-  const frontApiUrl = process.env.FRONT_API_URL || 'http://localhost:3000';
+  const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
   //const response = await axios.get(`http://localhost/album_nextjs/server/photos.php?albumId=${albumId}`);
   const response = await axios.get(`${frontApiUrl}/api/photo_manage/${albumId}`);
   const data = response.data.result;

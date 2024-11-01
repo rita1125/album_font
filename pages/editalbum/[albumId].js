@@ -24,7 +24,7 @@ export default function AlbumUpdate() {
   const [snackbarType, setSnackbarType] = useState('error');
   const [dialogOpen, setDialogOpen] = useState(false);  //dialog開關
   const [dialogType, setDialogType] = useState('');     //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
-  const frontApiUrl = process.env.FRONT_API_URL || 'http://localhost:3000';
+  const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
 
 
   //檢查token
