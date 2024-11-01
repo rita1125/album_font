@@ -4,11 +4,11 @@ module.exports = {
     return [
       {
         source: '/albums', //使用者輸入的 URL
-        destination: 'http://localhost/album_nextjs/server/albums.php'  || `${process.env.NEXT_PUBLIC_API_URL}/albums.php`, //處理該請求的 URL 
+        destination: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/albums.php`:'http://localhost/album_nextjs/server/albums.php', //處理該請求的 URL 
       },
       {
         source: '/manage', //使用者輸入的 URL
-        destination: 'http://localhost/album_nextjs/server/manage.php' || `${process.env.NEXT_PUBLIC_API_URL}/manage.php`, //際理該請求的 URL 
+        destination: process.env.NEXT_PUBLIC_API_URL? `${process.env.NEXT_PUBLIC_API_URL}/manage.php`:'http://localhost/album_nextjs/server/manage.php',//處理該請求的 URL 
       },
     ];
   },
