@@ -46,11 +46,11 @@ export default function Home() {
         <meta charSet="UTF-8" />
         <meta name="author" content="Rita Chen" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
-        <meta property="og:title" content="繽紛生活-相簿首頁" />
         {/* Facebook、LinkedIn分享時的預覽效果 */}
-        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作，提供用戶相簿與照片管理功能。" />
-        <meta property="og:image" content="https://yourdomain.com/preview-image.jpg" />
-        <meta property="og:url" content="https://yourdomain.com" />
+        <meta property="og:title" content="繽紛生活-相簿首頁" />
+        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作，提供用戶相簿與照片管理功能" />
+        <meta property="og:image" content="https://albums-front-b62f334991df.herokuapp.com/images/og_image.png" />
+        <meta property="og:url" content="https://albums-front-b62f334991df.herokuapp.com/" />
         <meta property="og:type" content="website" />
       </Head>
       <div className="h-[2%] sm:h-1/6"></div>

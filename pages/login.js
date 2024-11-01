@@ -72,11 +72,11 @@ export default function Login() {
         <meta charSet="UTF-8" />
         <meta name="author" content="Rita Chen" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
-        <meta property="og:title" content="繽紛生活-管理登入" />
         {/* Facebook、LinkedIn分享時的預覽效果 */}
-        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作，提供用戶相簿與照片管理功能。" />
-        <meta property="og:image" content="https://yourdomain.com/preview-image.jpg" />
-        <meta property="og:url" content="https://yourdomain.com" />
+        <meta property="og:title" content="繽紛生活-管理登入" />
+        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作，提供用戶相簿與照片管理功能" />
+        <meta property="og:image" content="https://albums-front-b62f334991df.herokuapp.com/images/og_image.png" />
+        <meta property="og:url" content="https://albums-front-b62f334991df.herokuapp.com/" />
         <meta property="og:type" content="website" />
       </Head>
       <div className="h-[2%] sm:h-1/6"></div>
@@ -120,7 +120,8 @@ export default function Login() {
                 {/* 表單錯誤驗證 */}
                 {errors.password && <div className="text-rose-800 text-sm pl-14 sm:pl-16 leading-7">{errors.password}</div>}
             </div>
-            <div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>1234</span></div>
+            <div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>pass1234
+            </span></div>
             <div className="mb-4 text-center flex justify-center">
               <div className="relative inline-block">
                 <HiOutlineCheck className="fas fa-user absolute left-8 top-2 text-white" />
