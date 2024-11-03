@@ -4,8 +4,9 @@ import Image from 'next/image';
 import axios from 'axios';
 import Link from 'next/link';
 import Head from 'next/head';
-import Pagination from '../components/Pagination'; //分頁
+import Pagination from '../components/Pagination';  //分頁
 import { HiLibrary, HiCog } from "react-icons/hi";    
+import CircularProgress from '@mui/material/CircularProgress';  //loading
 
 export default function Home() {
   const [albums, setAlbums] = useState([]);
@@ -15,16 +16,32 @@ export default function Home() {
   const itemsInPage = 4;                      //4個為一頁
   const pageRef = useRef(null);
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
+  const [loading, setLoading] = useState(true); 
 
+  // useEffect(() => {
+  //   axios.get(`/albums`) 
+  //     .then((res) => {
+  //       setAlbums(res.data.albums);
+  //     })
+  //     .catch(error => {
+  //       console.error("GET albums error! ", error); 
+  //     });
+  // }, []);
   useEffect(() => {
-    axios.get(`/albums`) 
-      .then((res) => {
+    const getAlbums = async () => {
+      try {
+        const res = await axios.get(`/albums`);
         setAlbums(res.data.albums);
-      })
-      .catch(error => {
-        console.error("GET albums error! ", error); 
-      });
+      } catch (error) {
+        console.error("GET albums error! ", error);
+      } finally {
+        setLoading(false); 
+      }
+    };
+
+    getAlbums();
   }, []);
+
 
   // 計算當前頁的資料
   const pageCount = Math.ceil(albums.length / itemsInPage);  //計算整筆資料分成幾頁
@@ -86,41 +103,44 @@ export default function Home() {
       </div>
       <hr className="hidden sm:block h-px bg-gray-700 border-2 sm:mt-8 sm:mb-12"></hr>
       {/* 主要內容 */}
-      {albums.length === 0 ?
-        (<div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~沒有任何相簿，請於相簿管理進行新增~</div>)
-        :
-        <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[25rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible ">
-          {newAlbums.map((album) => (
-            <div key={album.album_id} className="w-72 sm:w-full h-72 bg-white flex flex-col justify-start rounded-lg leading-10 text-lg sm:text-xl text-center border-solid border-2 border-gray-200">
-              <Link href={`/photos/${album.album_id}`}>
-                <div className="relative w-full h-48 bg-white overflow-hidden rounded-lg">
-                    {album.photo_file == null ?
-                      <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
-                      :
-                      <Image 
-                        src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
-                        alt={album.album_name} 
-                        fill 
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority
-                        className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
-                      />
-                    }
-                </div>
-                <p className="mt-2 font-medium">{album.album_name}</p>
-                <p className="text-lg text-gray-500">共 {album.photo_count} 張</p>
-              </Link>
-            </div>
-            ))
-          }
+      {loading ? ( 
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您加載中</div>
         </div>
+        ) 
+        : albums.length === 0 ? (
+          <div className='flex justify-center items-center text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>X沒有任何相簿X<br />~請於相簿管理進行新增~</div>
+          )
+          : (<div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[25rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible ">
+            {newAlbums.map((album) => (
+              <div key={album.album_id} className="w-72 sm:w-full h-72 bg-white flex flex-col justify-start rounded-lg leading-10 text-lg sm:text-xl text-center border-solid border-2 border-gray-200">
+                <Link href={`/photos/${album.album_id}`}>
+                  <div className="relative w-full h-48 bg-white overflow-hidden rounded-lg">
+                      {album.photo_file == null ?
+                        <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
+                        :
+                        <Image 
+                          src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
+                          alt={album.album_name} 
+                          fill 
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority
+                          className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
+                        />
+                      }
+                  </div>
+                  <p className="mt-2 font-medium">{album.album_name}</p>
+                  <p className="text-lg text-gray-500">共 {album.photo_count} 張</p>
+                </Link>
+              </div>
+              ))
+            }
+          </div>)
       }
+      
+
       {/* 分頁按鈕 */}
-      {albums.length === 0 ?
-        <></>
-        :
-        <Pagination albums={albums} pageCount={pageCount} pageClick={pageClick} />
-      }
+      { !loading && albums.length > 0 && (<Pagination albums={albums} pageCount={pageCount} pageClick={pageClick} />) }
     </div>
   );
 }

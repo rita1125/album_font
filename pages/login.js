@@ -121,6 +121,7 @@ export default function Login() {
                 {errors.password && <div className="text-rose-800 text-sm pl-14 sm:pl-16 leading-7">{errors.password}</div>}
             </div>
             <div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>pass1234
+            {/* 本機運行的帳密<div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>1234*/}
             </span></div>
             <div className="mb-4 text-center flex justify-center">
               <div className="relative inline-block">

@@ -9,6 +9,7 @@ import Pagination from '../components/Pagination';        //分頁
 import Confirm from '../components/Confirm'               //確認對話框
 import SnackbarAlert from '../components/SnackbarAlert'   //提示訊息
 import { verifyToken } from '../utils/token';             //驗證token
+import CircularProgress from '@mui/material/CircularProgress';
 
 const AlbumManage = () => {
   const [albums, setAlbums] = useState([]);
@@ -24,7 +25,9 @@ const AlbumManage = () => {
   const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
   const [delAlbumId, setdelAlbumId] = useState(null);  //儲存要刪除的相簿ID
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
-  
+  const [loading, setLoading] = useState(true);        //loading
+
+
   //檢查token
   useEffect(() => {
     //統整過的token
@@ -88,7 +91,10 @@ const AlbumManage = () => {
       })
       .catch(error => {
         console.error("GET manage error! ", error); 
-      });
+      })
+      .finally(() =>{
+        setLoading(false);
+      })
   }, [nowPage]);
 
 
@@ -224,43 +230,46 @@ const AlbumManage = () => {
       </div>
       <hr className="hidden sm:block h-px bg-gray-700 border-2 sm:mt-8 sm:mb-12"></hr>
       {/* 主要內容 */}
-      {albums.length === 0 ?
-        (<div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~沒有任何相簿，請新增相簿~</div>)
-        :
-        // h-[25rem]
-        <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
-          {newAlbums.map((album) => (
-            <div key={album.album_id} className="w-72 sm:w-full h-72 bg-white flex flex-col justify-start rounded-lg leading-10 text-lg sm:text-xl text-center border-solid border-2 border-gray-200">
-              <Link href={`/photo_manage/${album.album_id}`}>
-                <div className="relative w-full h-48 overflow-hidden">
-                  {album.photo_file == null ?
-                    <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
-                    :
-                    <Image 
-                      src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
-                      alt={album.album_name} 
-                      fill 
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      priority
-                      className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
-                    />
-                  }
-                </div>
-                <p className="mt-2 font-medium">{album.album_name}</p>
-              </Link>
-              <p className="flex items-center justify-center cursor-pointer pt-3 text-rose-800 hover:text-rose-600 focus:text-rose-600" onClick={() => openDelDialog(album.album_id)}>
-                <HiTrash className='mr-1'/>刪除相簿
-              </p>
-            </div>
-          ))}
+      {loading ? ( 
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您加載中</div>
         </div>
+        ) 
+        : albums.length === 0 ?(
+          <div className='flex justify-center items-center text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>X沒有任何相簿X<br />~請新增相簿~</div>
+          )
+          :
+          // h-[25rem]
+          (<div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
+            {newAlbums.map((album) => (
+              <div key={album.album_id} className="w-72 sm:w-full h-72 bg-white flex flex-col justify-start rounded-lg leading-10 text-lg sm:text-xl text-center border-solid border-2 border-gray-200">
+                <Link href={`/photo_manage/${album.album_id}`}>
+                  <div className="relative w-full h-48 overflow-hidden">
+                    {album.photo_file == null ?
+                      <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
+                      :
+                      <Image 
+                        src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
+                        alt={album.album_name} 
+                        fill 
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority
+                        className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
+                      />
+                    }
+                  </div>
+                  <p className="mt-2 font-medium">{album.album_name}</p>
+                </Link>
+                <p className="flex items-center justify-center cursor-pointer pt-3 text-rose-800 hover:text-rose-600 focus:text-rose-600" onClick={() => openDelDialog(album.album_id)}>
+                  <HiTrash className='mr-1'/>刪除相簿
+                </p>
+              </div>
+            ))}
+          </div>)
       }
+
       {/* 分頁按鈕 */}
-      {albums.length === 0 ?
-        <></>
-        :
-        <Pagination albums={albums} pageCount={pageCount} pageClick={pageClick} />
-      }
+      { !loading && albums.length > 0 && (<Pagination albums={albums} pageCount={pageCount} pageClick={pageClick} />) }
       {/* snackbar提示訊息 */}
       <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
       {/* <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={closeSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>

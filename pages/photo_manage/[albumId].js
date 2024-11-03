@@ -9,6 +9,7 @@ import Pagination from '../../components/Pagination';         //分頁
 import SnackbarAlert from '../../components/SnackbarAlert'    //提示訊息
 import Confirm from '../../components/Confirm'                //確認對話框
 import { verifyToken } from '../../utils/token';             //驗證token
+import CircularProgress from '@mui/material/CircularProgress';  //loading
 
 // 在伺服器端抓取資料
 export async function getServerSideProps(context) {
@@ -52,6 +53,7 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
   const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
   const [delPhotoId, setdelPhotoId] = useState(null);  //儲存要刪除的圖片ID
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
+  const [loading, setLoading] = useState(true); 
 
   //檢查token
   useEffect(() => {
@@ -103,6 +105,14 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
 
   }, [router]);
 
+   // 加載完 thisAlbum跟photos，設置 loading 為 false
+  useEffect(() => {
+    if(thisAlbum && initialPhotos) {
+      setLoading(false);
+    }
+  }, [thisAlbum, initialPhotos]);
+
+
   //把刪除圖片的確認框打開
   const openDelDialog = (photoID) => {
     setdelPhotoId(photoID);
@@ -151,6 +161,8 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
         //關閉confirm對話框
         setDialogOpen(false);
         setdelPhotoId(null);
+        //關閉loading
+        setLoading(false)
       });
     }
   };
@@ -259,29 +271,32 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
         <div className='block font-bold'>簡介 : {thisAlbum.album_desc}</div>
       </div>
       {/* 圖片 */}
-      {photos.length === 0 ? (
-        <div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~此相簿沒有圖片~</div>
-      ) : (
-        <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[24rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
-          {newPhotos.map(photo => (
-            <div key={photo.photo_id}>
-              <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
-                <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
-              </div>
-              <p className="flex items-center justify-center text-rose-800 hover:text-rose-600 focus:text-rose-600 text-center text-lg sm:text-xl" onClick={() => openDelDialog(photo.photo_id)}>
-                <HiTrash className='mr-1' /> 刪除圖片
-              </p>
-            </div>
-          ))}
+      {loading ? ( 
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您加載中</div>
         </div>
-      )}
-      {/* 分頁按鈕 */}
-      {photos.length === 0 ?
-        <></>
-        :
-        <Pagination photos={photos} pageCount={pageCount} pageClick={pageClick} />
+        ) 
+      : photos.length === 0 ? (
+        <div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~此相簿沒有圖片~</div>
+        ) 
+        : (
+          <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[24rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
+            {newPhotos.map(photo => (
+              <div key={photo.photo_id}>
+                <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
+                  <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                </div>
+                <p className="flex items-center justify-center text-rose-800 hover:text-rose-600 focus:text-rose-600 text-center text-lg sm:text-xl" onClick={() => openDelDialog(photo.photo_id)}>
+                  <HiTrash className='mr-1' /> 刪除圖片
+                </p>
+              </div>
+            ))}
+          </div>
+          )
       }
-       {/* snackbar提示訊息 */}
+      {/* 分頁按鈕 */}
+      { !loading && photos.length > 0 && (<Pagination photos={photos} pageCount={pageCount} pageClick={pageClick} />) }
+      {/* snackbar提示訊息 */}
        <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
       {/* confirm dialog提示訊息 */}
       <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} deletePhoto={deletePhoto} logout={logout}/>

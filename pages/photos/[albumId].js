@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { useState,useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
 import Pagination from '../../components/Pagination'; //分頁
 import { HiLibrary, HiZoomIn, HiCog } from "react-icons/hi";
+import CircularProgress from '@mui/material/CircularProgress';  //loading
 
 //伺服器端抓取資料
 export async function getServerSideProps(context) {
@@ -40,6 +41,8 @@ export default function PhotosPage({ thisAlbum, photos }) {
   const itemsInPage = 4;
   const pageRef = useRef(null);
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
+  const [loading, setLoading] = useState(true); 
+
 
   // 計算當前頁的資料
   const pageCount = Math.ceil(photos.length / itemsInPage);
@@ -51,6 +54,14 @@ export default function PhotosPage({ thisAlbum, photos }) {
       pageRef.current.scrollTop = 0;
     }
   };
+
+  //加載完 thisAlbum跟photos，設置 loading 為 false
+  useEffect(() => {
+    if(thisAlbum && photos) {
+      setLoading(false); 
+    }
+  }, [thisAlbum, photos]);
+
 
   if (!thisAlbum) {
     return <div className='container mx-auto w-full h-screen flex justify-center items-center'>未找到相簿任何資料</div>;
@@ -116,33 +127,35 @@ export default function PhotosPage({ thisAlbum, photos }) {
         <div className='block font-bold'>簡介 : {thisAlbum.album_desc}</div>
       </div>
       {/* 圖片 */}
-      {photos.length === 0 ?
-        <div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~此相簿沒有圖片~</div>
-        :
-        <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[24rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
-          {newPhotos.map(photo => (
-            <Link href={`/photoShow/${photo.photo_id}`} key={photo.photo_id}>
-              <div>
-                {/* 圖片的容器，設置固定尺寸和 overflow-hidden */}
-                <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
-                  <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
-                </div>
-                <p className="flex items-center justify-center font-bold text-rose-900 hover:text-rose-700 focus:text-rose-700 text-center text-lg sm:text-xl">
-                  <HiZoomIn className="mr-1" />
-                  點擊看全圖
-                </p>
-              </div>
-            </Link>
-            ))
-          }
+      {loading ? ( 
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您加載中</div>
         </div>
+        ) 
+        : photos.length === 0 ?(
+          <div className='flex justify-center items-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>~此相簿沒有圖片~</div>
+          )
+          : ( <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[24rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
+            {newPhotos.map(photo => (
+              <Link href={`/photoShow/${photo.photo_id}`} key={photo.photo_id}>
+                <div>
+                  {/* 圖片的容器，設置固定尺寸和 overflow-hidden */}
+                  <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
+                    <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                  </div>
+                  <p className="flex items-center justify-center font-bold text-rose-900 hover:text-rose-700 focus:text-rose-700 text-center text-lg sm:text-xl">
+                    <HiZoomIn className="mr-1" />
+                    點擊看全圖
+                  </p>
+                </div>
+              </Link>
+              ))
+            }
+            </div>
+            )
       }
       {/* 分頁按鈕 */}
-      {photos.length === 0 ?
-        <></>
-        :
-        <Pagination photos={photos} pageCount={pageCount} pageClick={pageClick} />
-      }
+      { !loading && photos.length > 0 && (<Pagination photos={photos} pageCount={pageCount} pageClick={pageClick} />) }
       {/* 
         <style jsx>
           {`

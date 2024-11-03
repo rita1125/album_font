@@ -217,7 +217,7 @@ export default function AddAlbum() {
               className="flex-gro p-1 sm:p-2 rounded-md min-w-64 w-[16rem]"
             />
           </div>
-          <div className="flex items-center justify-center text-rose-900 text-base sm:text-xl mb-3 sm:mb-5">可以一次傳多個圖片，每張圖片大小不得超過10MB，上傳檔案類型僅為jpg、jpeg、png、gif </div>
+          <div className="flex items-center justify-center text-rose-900 text-base sm:text-xl mb-3 sm:mb-5">可以一次傳多張圖片，每張圖片大小不超過5MB，總共上限為10MB，僅接受檔案類型包括 jpg、jpeg、png 和 gif。 </div>
           <div className="text-center">
             <div className="flex justify-center space-x-4">
               <div className="relative inline-block">
