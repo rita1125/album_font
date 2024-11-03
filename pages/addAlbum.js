@@ -100,7 +100,7 @@ export default function AddAlbum() {
 
   //多檔案上傳
   const fileUpload = (e) => {
-    //Array.from  將 FileList 物件（e.target.files）轉為真正的陣列(原本是物件)，以便後續可以更方便地操作檔案
+    //Array.from  將 FileList 物件（e.target.files）轉陣列
     setPhotos(Array.from(e.target.files));
   };
 

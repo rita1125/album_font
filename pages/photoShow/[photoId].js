@@ -9,6 +9,7 @@ import { HiLibrary, HiReply , HiCog } from "react-icons/hi";
 export async function getServerSideProps(context) {
   const { photoId } = context.params; 
   const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
+
   try {
     // 傳遞 photoId 作為查詢參數
     // axios選項，用來構建 URL查詢參數，在 GET 請求中。它會自動將 params中的 key-value 對附加到 URL 後，形成完整的查詢字串
@@ -43,6 +44,7 @@ export async function getServerSideProps(context) {
 export default function PhotosPage({ photos }) {
   const router = useRouter();  
   const isHomepage = router.pathname === '/'; 
+  const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
   //console.log(photos);
 
   if (!photos) {
@@ -94,7 +96,7 @@ export default function PhotosPage({ photos }) {
             {photos.map(photo => (
                 <div key={photo.photo_id}>
                     <div className="w-[21rem] h-[12rem] md:w-[50rem] md:h-[27rem] flex justify-center overflow-hidden bg-white rounded-lg mb-12">
-                      <img src={`/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" />
+                      <img src={`${serverApiUrl}/public/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" />
                     </div>
                 </div>
             ))}

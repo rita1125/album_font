@@ -12,4 +12,10 @@ module.exports = {
       },
     ];
   },
+  images: {
+    domains: [
+      'localhost',
+      'albums-server-8c95f917560b.herokuapp.com', //heroku後端主機名
+    ],
+  },
 };

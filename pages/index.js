@@ -14,6 +14,7 @@ export default function Home() {
   const [nowPage, setNowPage] = useState(0);  //0當第1頁
   const itemsInPage = 4;                      //4個為一頁
   const pageRef = useRef(null);
+  const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
 
   useEffect(() => {
     axios.get(`/albums`) 
@@ -97,7 +98,7 @@ export default function Home() {
                       <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
                       :
                       <Image 
-                        src={`/images/thumbnail/${album.photo_file}`} 
+                        src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
                         alt={album.album_name} 
                         fill 
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

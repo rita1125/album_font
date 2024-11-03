@@ -14,6 +14,7 @@ import { verifyToken } from '../../utils/token';             //驗證token
 export async function getServerSideProps(context) {
   const { albumId } = context.query;  //取得 URL 所有查詢字符串參數
   const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
+
   //const response = await axios.get(`http://localhost/album_nextjs/server/photos.php?albumId=${albumId}`);
   const response = await axios.get(`${frontApiUrl}/api/photo_manage/${albumId}`);
   const data = response.data.result;
@@ -265,7 +266,7 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
           {newPhotos.map(photo => (
             <div key={photo.photo_id}>
               <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
-                <img src={`/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
               </div>
               <p className="flex items-center justify-center text-rose-800 hover:text-rose-600 focus:text-rose-600 text-center text-lg sm:text-xl" onClick={() => openDelDialog(photo.photo_id)}>
                 <HiTrash className='mr-1' /> 刪除圖片

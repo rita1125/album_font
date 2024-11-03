@@ -12,6 +12,7 @@ export async function getServerSideProps(context) {
   //訪問 /photos/12 時，12 作為 albumId 會自動傳遞到 getServerSideProps 的 params
   const { albumId } = context.params;  //只會在動態路由頁面中出現，取路由中的動態參數
   const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
+
   const response = await axios.get(`${frontApiUrl}/api/photos/${albumId}`);
   const data = response.data.result;
   //console.log('Data :', data);
@@ -38,6 +39,7 @@ export default function PhotosPage({ thisAlbum, photos }) {
   const [nowPage, setNowPage] = useState(0);
   const itemsInPage = 4;
   const pageRef = useRef(null);
+  const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
 
   // 計算當前頁的資料
   const pageCount = Math.ceil(photos.length / itemsInPage);
@@ -123,7 +125,7 @@ export default function PhotosPage({ thisAlbum, photos }) {
               <div>
                 {/* 圖片的容器，設置固定尺寸和 overflow-hidden */}
                 <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
-                  <img src={`/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                  <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
                 </div>
                 <p className="flex items-center justify-center font-bold text-rose-900 hover:text-rose-700 focus:text-rose-700 text-center text-lg sm:text-xl">
                   <HiZoomIn className="mr-1" />

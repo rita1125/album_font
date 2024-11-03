@@ -237,7 +237,7 @@ const AlbumManage = () => {
                     <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
                     :
                     <Image 
-                      src={`/images/thumbnail/${album.photo_file}`} 
+                      src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
                       alt={album.album_name} 
                       fill 
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
