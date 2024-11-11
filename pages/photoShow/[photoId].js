@@ -70,15 +70,17 @@ export default function PhotosPage({ photos }) {
         {/* 網站標題跟按鈕 */}
         <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
             <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-            <Image
-                src="/images/title.png?v2"
-                alt="Title Image"
-                width={420}
-                height={113}
-                priority
-                className='max-w-[88%] sm:max-w-[100%]'
-                //style={{ width: '100%', height: 'auto' }} 
-            />
+            <Link href="/">
+              <Image
+                  src="/images/title.png?v2"
+                  alt="Title Image"
+                  width={420}
+                  height={113}
+                  priority
+                  className='max-w-[88%] sm:max-w-[100%]'
+                  //style={{ width: '100%', height: 'auto' }} 
+              />
+            </Link>
             </div>
             <div className="flex justify-center space-x-4">
             { !isHomepage && (
@@ -96,7 +98,16 @@ export default function PhotosPage({ photos }) {
             {photos.map(photo => (
                 <div key={photo.photo_id}>
                     <div className="w-[21rem] h-[12rem] md:w-[50rem] md:h-[27rem] flex justify-center overflow-hidden bg-white rounded-lg mb-12">
-                      <img src={`${serverApiUrl}/public/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" />
+                      {/* 優先 :若 DB有 imgur_link，顯示imgur的圖片 */}
+                      { photo.imgur_link && (
+                        <img src={photo.imgur_link} className=" h-full object-cover" />
+                        ) 
+                      }
+                      {/* 若 DB 無 imgur_link，顯示本機圖片 */}
+                      { !photo.imgur_link && (
+                        <img src={`${serverApiUrl}/public/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" />
+                        ) 
+                      }
                     </div>
                 </div>
             ))}

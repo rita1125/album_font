@@ -75,15 +75,17 @@ export default function Home() {
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
         <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-          <Image
-            src="/images/title.png?v2"
-            alt="Title Image"
-            width={420}
-            height={113}
-            priority
-            className='max-w-[88%] sm:max-w-[100%]'
-            // style={{ width: '100%', height: 'auto' }}  //使圖片的寬度為100%的父元素尺寸，高度自動調整，保持原始寬高比
-          />
+          <Link href="/">
+            <Image
+              src="/images/title.png?v2"
+              alt="Title Image"
+              width={420}
+              height={113}
+              priority
+              className='max-w-[88%] sm:max-w-[100%]'
+              // style={{ width: '100%', height: 'auto' }}  //使圖片的寬度為100%的父元素尺寸，高度自動調整，保持原始寬高比
+            />
+          </Link>
         </div>
         <div className="flex justify-center space-x-4">
           { !isHomepage && (
@@ -119,14 +121,32 @@ export default function Home() {
                       {album.photo_file == null ?
                         <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
                         :
-                        <Image 
-                          src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
-                          alt={album.album_name} 
-                          fill 
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          priority
-                          className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
-                        />
+                        (
+                          <>
+                            {/* 優先 :若 DB有 imgur_link，顯示imgur的縮圖 */}
+                            { album.imgur_link && (
+                              <Image
+                                src={album.imgur_resize_link}
+                                alt={album.album_name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                priority
+                                className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125"
+                              />
+                            )}
+                            {/* 若 DB 無 imgur_link，顯示本機圖片 */}
+                            { !album.imgur_link && (
+                              <Image
+                                src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`}
+                                alt={album.album_name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                priority
+                                className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125"
+                              />
+                            )}
+                          </>
+                        )
                       }
                   </div>
                   <p className="mt-2 font-medium">{album.album_name}</p>

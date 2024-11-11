@@ -192,23 +192,25 @@ const AlbumManage = () => {
         <meta name="author" content="Rita Chen" />
         {/* Facebook、LinkedIn分享時的預覽效果 */}
         <meta property="og:title" content="繽紛生活-相簿管理" />
-        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作..." />
-        <meta property="og:image" content="https://yourdomain.com/preview-image.jpg" />
-        <meta property="og:url" content="https://yourdomain.com" />
+        <meta property="og:description" content="使用Next.js與PHP進行全端開發實作，提供用戶相簿與照片管理功能" />
+        <meta property="og:image" content="https://albums-front-b62f334991df.herokuapp.com/images/og_image.png" />
+        <meta property="og:url" content="https://albums-front-b62f334991df.herokuapp.com/" />
         <meta property="og:type" content="website" />
       </Head>
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
         <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-          <Image
-            src="/images/title.png?v2"
-            alt="Title Image"
-            width={420}
-            height={113}
-            priority
-            className='h-[100%] sm:max-w-[100%]'
-          />
+          <Link href="/">
+            <Image
+              src="/images/title.png?v2"
+              alt="Title Image"
+              width={420}
+              height={113}
+              priority
+              className='h-[100%] sm:max-w-[100%]'
+            />
+          </Link>
         </div>
         <div className="flex justify-center space-x-4">
           { !isHomepage && (
@@ -248,14 +250,32 @@ const AlbumManage = () => {
                     {album.photo_file == null ?
                       <div className="leading-[13rem] bg-[#f1f1f1]">此相簿沒有圖片</div>
                       :
-                      <Image 
-                        src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`} 
-                        alt={album.album_name} 
-                        fill 
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority
-                        className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125" 
-                      />
+                      (
+                        <>
+                          {/* 優先 :若 DB有 imgur_resize_link，顯示imgur的縮圖 */}
+                          { album.imgur_link && (
+                            <Image
+                              src={album.imgur_resize_link}
+                              alt={album.album_name}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              priority
+                              className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125"
+                            />
+                          )}
+                          {/* 若 DB 無 imgur_link，顯示本機圖片 */}
+                          { !album.imgur_link && (
+                            <Image
+                              src={`${serverApiUrl}/public/images/thumbnail/${album.photo_file}`}
+                              alt={album.album_name}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              priority
+                              className="object-cover rounded-t-lg transform transition-transform duration-250 ease-in-out hover:scale-125 focus:scale-125"
+                            />
+                          )}
+                        </>
+                      )
                     }
                   </div>
                   <p className="mt-2 font-medium">{album.album_name}</p>

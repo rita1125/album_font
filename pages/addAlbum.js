@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Head from 'next/head';
 import { HiLibrary, HiPlus, HiOutlineLogout, HiReply } from "react-icons/hi";   
-import SnackbarAlert from '../components/SnackbarAlert'   //提示訊息 
-import Confirm from '../components/Confirm'               //確認對話框
-import { verifyToken } from '../utils/token';             //驗證token
+import SnackbarAlert from '../components/SnackbarAlert'         //提示訊息 
+import Confirm from '../components/Confirm'                     //確認對話框
+import { verifyToken } from '../utils/token';                   //驗證token
+import CircularProgress from '@mui/material/CircularProgress';  //loading
 
 export default function AddAlbum() {
   const [albumName, setAlbumName] = useState('');
@@ -23,6 +24,7 @@ export default function AddAlbum() {
   const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
   const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
+  const [loading, setLoading] = useState(false); 
 
   //檢查token
   useEffect(() => {
@@ -44,6 +46,8 @@ export default function AddAlbum() {
 
   const addAlbumSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const formData = new FormData();
     //加相簿各資訊、圖片給 formData
     formData.append('album_name', albumName);
@@ -74,8 +78,10 @@ export default function AddAlbum() {
         // },
       });
       if (response.data.success) {
+        setLoading(false);
         router.push('/album_manage');
       } else {
+        setLoading(false);
         //alert('上傳失敗');
         //顯示訊息提示
         setSnackbarMes('上傳失敗');
@@ -139,15 +145,17 @@ export default function AddAlbum() {
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
         <div className="mb-4 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-          <Image
-            src="/images/title.png?v2"
-            alt="Title Image"
-            width={420}
-            height={113}
-            priority
-            className='max-w-[88%] sm:max-w-[100%]'
-            //style={{ width: '100%', height: 'auto' }} 
-          />
+          <Link href="/">
+            <Image
+              src="/images/title.png?v2"
+              alt="Title Image"
+              width={420}
+              height={113}
+              priority
+              className='max-w-[88%] sm:max-w-[100%]'
+              //style={{ width: '100%', height: 'auto' }} 
+            />
+          </Link>
         </div>  
         <div className="flex justify-center space-x-4">
           { !isHomepage && (
@@ -162,77 +170,86 @@ export default function AddAlbum() {
       </div>
       {/* 頁面簡述與分隔線 */}
       <div className="B flex justify-center items-center text-teal-600 my-6 sm:my-4">
-        <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl sm:ml-6 flex items-center justify-center pr-1"><HiPlus className='mr-1'/>新增相簿頁面</div>
+        <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl flex items-center justify-center pr-1"><HiPlus className='mr-1'/>新增相簿頁面</div>
       </div>
       <hr className="hidden sm:block h-px bg-gray-700 border-2 sm:mt-8 sm:mb-12"></hr>
       {/* 主要內容 */}
-      <div className="C justify-center mx-auto w-full h-[29rem] sm:pt-0 overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
-        <form onSubmit={addAlbumSubmit} encType="multipart/form-data">
-          <div className="flex items-center mb-4 text-xl">
-            <label className="w-[4rem] pr-4">名稱:</label>
-            <input
-              type="text"
-              value={albumName}
-              onChange={(e) => setAlbumName(e.target.value)}
-              required
-              maxLength={50}  //字數
-              className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
-            />
-          </div>
-          <div className="flex items-center mb-4 text-xl">
-            <label className="w-[4rem] pr-4">時間:</label>
-            <input
-              type="text"
-              value={albumDate}
-              onChange={(e) => setAlbumDate(e.target.value)}
-              maxLength={50}  //字數
-              className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
-            />
-          </div>
-          <div className="flex items-center mb-4 text-xl">
-            <label className="w-[4rem] pr-4">地點:</label>
-            <input
-              type="text"
-              value={albumPlace}
-              onChange={(e) => setAlbumPlace(e.target.value)}
-              maxLength={100}  //字數
-              className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
-            />
-          </div>
-          <div className="flex items-center mb-4 text-xl">
-            <label className="w-[4rem] pr-4">說明:</label>
-            <textarea
-              value={albumDesc}
-              onChange={(e) => setAlbumDesc(e.target.value)}
-              maxLength={500}  //字數
-              className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
-            />
-          </div>
-          <div className="flex items-center mb-4 text-xl">
-            <label className="w-[4rem] pr-4">照片:</label>
-            <input
-              type="file"
-              multiple
-              onChange={fileUpload}
-              className="flex-gro p-1 sm:p-2 rounded-md min-w-64 w-[16rem]"
-            />
-          </div>
-          <div className="flex items-center justify-center text-rose-900 text-base sm:text-xl mb-3 sm:mb-5">可以一次傳多張圖片，每張圖片大小不超過5MB，總共上限為10MB，僅接受檔案類型包括 jpg、jpeg、png 和 gif。 </div>
-          <div className="text-center">
-            <div className="flex justify-center space-x-4">
-              <div className="relative inline-block">
-                <HiPlus className="fas fa-user absolute left-3 sm:left-5 top-[0.65rem] sm:top-[0.7rem] text-white text-lg sm:text-2xl" />
-                <input type="submit" name="submit" value="新增相簿" className="bg-rose-900 hover:bg-rose-700 rounded-3xl w-[7.5rem] sm:w-44 h-10 sm:h-12 pl-6 font-semibold text-lg sm:text-2xl text-center text-white" />
-              </div>
-              <div onClick={() => router.back()} className="bg-gray-400 hover:bg-gray-300 rounded-3xl w-[7.5rem] sm:w-44 h-10 sm:h-12 font-semibold text-lg sm:text-2xl text-center text-white leading-[2.6rem] sm:leading-[3rem] cursor-pointer">
-                <div className="text-white flex items-center justify-center">
-                  <HiReply className="mr-1" />回上一頁
+      {loading ? (
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您新增相簿</div>
+        </div>
+        )
+        : (
+        <div className="C justify-center mx-auto w-full h-[29rem] sm:pt-0 overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
+          <form onSubmit={addAlbumSubmit} encType="multipart/form-data">
+            <div className="flex items-center mb-4 text-xl">
+              <label className="w-[4rem] pr-4">名稱:</label>
+              <input
+                type="text"
+                value={albumName}
+                onChange={(e) => setAlbumName(e.target.value)}
+                required
+                maxLength={50}  //字數
+                className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
+              />
+            </div>
+            <div className="flex items-center mb-4 text-xl">
+              <label className="w-[4rem] pr-4">時間:</label>
+              <input
+                type="text"
+                value={albumDate}
+                onChange={(e) => setAlbumDate(e.target.value)}
+                maxLength={50}  //字數
+                className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
+              />
+            </div>
+            <div className="flex items-center mb-4 text-xl">
+              <label className="w-[4rem] pr-4">地點:</label>
+              <input
+                type="text"
+                value={albumPlace}
+                onChange={(e) => setAlbumPlace(e.target.value)}
+                maxLength={100}  //字數
+                className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
+              />
+            </div>
+            <div className="flex items-center mb-4 text-xl">
+              <label className="w-[4rem] pr-4">說明:</label>
+              <textarea
+                value={albumDesc}
+                onChange={(e) => setAlbumDesc(e.target.value)}
+                maxLength={500}  //字數
+                className="flex-grow border border-gray-300 p-1 sm:p-2 rounded-md bg-gray-200 min-w-0" 
+              />
+            </div>
+            <div className="flex items-center mb-4 text-xl">
+              <label className="w-[4rem] pr-4">照片:</label>
+              <input
+                type="file"
+                multiple
+                onChange={fileUpload}
+                className="flex-gro p-1 sm:p-2 rounded-md min-w-64 w-[16rem]"
+              />
+            </div>
+            <div className="flex items-center justify-center text-rose-900 text-base sm:text-xl mb-3 sm:mb-5">可以一次傳多張圖片，每張圖片大小不超過5MB，總共上限為10MB，僅接受檔案類型包括 jpg、jpeg、png 和 gif。 </div>
+            <div className="text-center">
+              <div className="flex justify-center space-x-4">
+                <div className="relative inline-block">
+                  <HiPlus className="fas fa-user absolute left-3 sm:left-5 top-[0.65rem] sm:top-[0.7rem] text-white text-lg sm:text-2xl" />
+                  <input type="submit" name="submit" value="新增相簿" className="bg-rose-900 hover:bg-rose-700 rounded-3xl w-[7.5rem] sm:w-44 h-10 sm:h-12 pl-6 font-semibold text-lg sm:text-2xl text-center text-white" />
+                </div>
+                <div onClick={() => router.back()} className="bg-gray-400 hover:bg-gray-300 rounded-3xl w-[7.5rem] sm:w-44 h-10 sm:h-12 font-semibold text-lg sm:text-2xl text-center text-white leading-[2.6rem] sm:leading-[3rem] cursor-pointer">
+                  <div className="text-white flex items-center justify-center">
+                    <HiReply className="mr-1" />回上一頁
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+        )
+      }
+     
       {/* snackbar提示訊息 */}
       <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
       {/* confirm dialog提示訊息 */}

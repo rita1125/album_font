@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Head from 'next/head';
 import { HiLibrary, HiPlus, HiCog, HiOutlineLogout, HiReply } from "react-icons/hi";    
-import SnackbarAlert from '../../components/SnackbarAlert'   //提示訊息 
-import Confirm from '../../components/Confirm'               //確認對話框
-import { verifyToken } from '../../utils/token';             //驗證token
+import SnackbarAlert from '../../components/SnackbarAlert'      //提示訊息 
+import Confirm from '../../components/Confirm'                  //確認對話框
+import { verifyToken } from '../../utils/token';                //驗證token
+import CircularProgress from '@mui/material/CircularProgress';  //loading
 
 export default function AddPhoto() {
   const [photos, setPhotos] = useState([]);
@@ -19,6 +20,7 @@ export default function AddPhoto() {
   const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
   const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
+  const [loading, setLoading] = useState(false); 
 
   //檢查token
   useEffect(() => {
@@ -39,6 +41,8 @@ export default function AddPhoto() {
 
   const addPhotoSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    
     const formData = new FormData();
     //加圖片
     photos.forEach((eachPhoto, index) => {
@@ -67,9 +71,12 @@ export default function AddPhoto() {
         //   'Content-Type': 'multipart/form-data',
         // },
       });
+   
       if (response.data.success) {
+        setLoading(false);
         router.push(`/photo_manage/${router.query.albumId}`);
       } else {
+        setLoading(false);
         //alert('上傳失敗');
         //顯示訊息提示
         setSnackbarMes('上傳失敗');
@@ -90,7 +97,6 @@ export default function AddPhoto() {
   const closeSnackbar = (event, reason) => {
     setSnackbarOpen(false);
   };
-
 
   //多檔案上傳
   const fileUpload = (e) => {
@@ -131,15 +137,17 @@ export default function AddPhoto() {
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
         <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-          <Image
-            src="/images/title.png?v2"
-            alt="Title Image"
-            width={420}
-            height={113}
-            priority
-            className='max-w-[88%] sm:max-w-[100%]'
-            //style={{ width: '100%', height: 'auto' }} 
-          />
+          <Link href="/">
+            <Image
+              src="/images/title.png?v2"
+              alt="Title Image"
+              width={420}
+              height={113}
+              priority
+              className='max-w-[88%] sm:max-w-[100%]'
+              //style={{ width: '100%', height: 'auto' }} 
+            />
+          </Link>
         </div>
         <div className="flex justify-center space-x-4 ">
           { !isHomepage && (
@@ -157,11 +165,17 @@ export default function AddPhoto() {
       </div>
       {/* 頁面簡述與分隔線 */}
       <div className="B flex justify-center items-center text-teal-600 my-6 sm:my-4">
-        <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl sm:ml-6 flex items-center justify-center pr-1"><HiCog className='mr-1'/>新增圖片頁面</div>
+        <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl flex items-center justify-center pr-1"><HiCog className='mr-1'/>新增圖片頁面</div>
       </div>
       <hr className="hidden sm:block h-px bg-gray-700 border-2 sm:mt-8 sm:mb-12"></hr>
       {/* 主要內容 */}
-      <form onSubmit={addPhotoSubmit} encType="multipart/form-data">
+      {loading ? ( 
+        <div className='flex justify-center items-center flex-col text-center font-bold text-rose-900 h-48 text-xl sm:text-2xl'>
+          <div><CircularProgress size="40px" sx={{ color: '#881337' }} /></div><div>正在為您上傳相片</div>
+        </div>
+        )
+        : (
+        <form onSubmit={addPhotoSubmit} encType="multipart/form-data">
         <div className="flex flex-col items-center justify-center mb-4 text-xl text-center">
           <input
             type="file"
@@ -185,7 +199,9 @@ export default function AddPhoto() {
             </div>
           </div>
         </div>
-      </form>
+        </form>
+        )
+      }
       {/* snackbar提示訊息 */}
       <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
       {/* confirm dialog提示訊息 */}

@@ -159,15 +159,17 @@ export default function AlbumUpdate() {
         {/* 網站標題跟按鈕 */}
         <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
             <div className="mb-4 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
-            <Image
-                src="/images/title.png?v2"
-                alt="Title Image"
-                width={420}
-                height={113}
-                priority
-                className='max-w-[88%] sm:max-w-[100%]'
-                //style={{ width: '100%', height: 'auto' }} 
-            />
+              <Link href="/">
+                <Image
+                    src="/images/title.png?v2"
+                    alt="Title Image"
+                    width={420}
+                    height={113}
+                    priority
+                    className='max-w-[88%] sm:max-w-[100%]'
+                    //style={{ width: '100%', height: 'auto' }} 
+                />
+              </Link>
             </div>
             <div className="flex justify-center space-x-4">
               { !isHomepage && (
@@ -182,7 +184,7 @@ export default function AlbumUpdate() {
         </div>
         {/* 頁面簡述與分隔線 */}
         <div className="B flex justify-center items-center text-teal-600 my-6 sm:my-4">
-            <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl sm:ml-6 flex items-center justify-center pr-1"><HiPencil className='mr-1'/>修改相簿</div>
+            <div className="text-left font-semibold text-rose-900 text-xl sm:text-3xl flex items-center justify-center pr-1"><HiPencil className='mr-1'/>修改相簿</div>
         </div>    
         <hr className="hidden sm:block h-px bg-gray-700 border-2 sm:mt-8 sm:mb-12"></hr>
         {/* 主要內容 */}
