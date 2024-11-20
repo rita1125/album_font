@@ -31,7 +31,7 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (error) {
-    console.error('Error取圖片', error);
+    //console.error('Error取圖片', error);
     return {
       props: {
         photos: [], 
@@ -69,7 +69,7 @@ export default function PhotosPage({ photos }) {
         <div className="h-[2%] sm:h-1/6"></div>
         {/* 網站標題跟按鈕 */}
         <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-            <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+            <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
             <Link href="/">
               <Image
                   src="/images/title.png?v2"
@@ -77,7 +77,6 @@ export default function PhotosPage({ photos }) {
                   width={420}
                   height={113}
                   priority
-                  className='max-w-[88%] sm:max-w-[100%]'
                   //style={{ width: '100%', height: 'auto' }} 
               />
             </Link>
@@ -100,12 +99,12 @@ export default function PhotosPage({ photos }) {
                     <div className="w-[21rem] h-[12rem] md:w-[50rem] md:h-[27rem] flex justify-center overflow-hidden bg-white rounded-lg mb-12">
                       {/* 優先 :若 DB有 imgur_link，顯示imgur的圖片 */}
                       { photo.imgur_link && (
-                        <img src={photo.imgur_link} className=" h-full object-cover" />
+                        <img src={photo.imgur_link} className=" h-full object-cover" loading="lazy" />
                         ) 
                       }
                       {/* 若 DB 無 imgur_link，顯示本機圖片 */}
                       { !photo.imgur_link && (
-                        <img src={`${serverApiUrl}/public/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" />
+                        <img src={`${serverApiUrl}/public/images/bigphoto/${photo.photo_file}`} className=" h-full object-cover" loading="lazy"/>
                         ) 
                       }
                     </div>

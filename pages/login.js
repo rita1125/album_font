@@ -5,7 +5,8 @@ import axios from 'axios';
 import Image from 'next/image'
 import Head from 'next/head';
 import { HiLibrary, HiCog, HiOutlineCheck  } from "react-icons/hi";    
-import SnackbarAlert from '../components/SnackbarAlert'   //提示訊息
+import SnackbarAlert from '../components/SnackbarAlert'     //提示訊息
+import { useSnackbar } from '../context/SnackbarContext';   //引入 useSnackbar
 
 
 export default function Login() {
@@ -14,9 +15,10 @@ export default function Login() {
   const router = useRouter(); 
   const isHomepage = router.pathname === '/';  
   const [errors, setErrors] = useState({});  //表單錯誤驗證
-  const [snackbarOpen, setSnackbarOpen] = useState(false); //Snackbar開關 
-  const [snackbarMes, setSnackbarMes] = useState(''); //Snackbar訊息
-  const [snackbarType, setSnackbarType] = useState('error'); //Snackbar類型
+  // const [snackbarOpen, setSnackbarOpen] = useState(false); //Snackbar開關 
+  // const [snackbarMes, setSnackbarMes] = useState(''); //Snackbar訊息
+  // const [snackbarType, setSnackbarType] = useState('error'); //Snackbar類型
+  const { openSnackbar } = useSnackbar();         //從 context 獲取 openSnackbar
 
   const formSubmit = async (event) => {
     event.preventDefault();
@@ -44,24 +46,26 @@ export default function Login() {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         //alert('帳號密碼錯誤，請重新登入');
-        setSnackbarMes('帳號密碼錯誤，請重新登入');
+        //setSnackbarMes('帳號密碼錯誤，請重新登入');
+        openSnackbar('帳號密碼錯誤，請重新登入','error',true); 
       } else {
         //alert('網路錯誤，請稍後再試');
-        setSnackbarMes('網路錯誤，請稍後再試');
+        //setSnackbarMes('網路錯誤，請稍後再試');
+        openSnackbar('網路錯誤，請稍後再試','error',true); 
       }
-      setSnackbarType('error');
-      setSnackbarOpen(true);
+      // setSnackbarType('error');
+      // setSnackbarOpen(true);
     }
   };
 
   //關掉Snackbar
-  const closeSnackbar = (event, reason) => {
-    //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
-    // if (reason === 'clickaway') {
-    //   return;
-    // }
-    setSnackbarOpen(false);
-  };
+  // const closeSnackbar = (event, reason) => {
+  //   //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
+  //   // if (reason === 'clickaway') {
+  //   //   return;
+  //   // }
+  //   setSnackbarOpen(false);
+  // };
 
   return (
     <div className="container mx-auto px-4 w-full md:w-[70%] h-screen flex flex-col">
@@ -82,7 +86,7 @@ export default function Login() {
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
           <Link href="/">
             <Image
               src="/images/title.png?v2"
@@ -90,7 +94,6 @@ export default function Login() {
               width={420}
               height={113}
               priority
-              className='max-w-[88%] sm:max-w-[100%]'
               //style={{ width: '100%', height: 'auto' }} 
             />
           </Link>
@@ -112,18 +115,18 @@ export default function Login() {
       <div className="C justify-center mx-auto w-full h-[25rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
         <div className="flex justify-center text-xl sm:text-2xl mt-10">
           <form onSubmit = {formSubmit}>
-            <div className="mb-4 focus:border-gray-400">帳號
+            <div className="mb-4 focus:border-gray-400 text-center">帳號
                 <input className="ml-3 pl-1 bg-gray-200" type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 {/* 表單錯誤驗證 */}
                 {errors.username && <div className="text-rose-800 text-sm pl-14 sm:pl-16 leading-7">{errors.username}</div>}
             </div>
-            <div className="mb-4">密碼
+            <div className="mb-4 text-center">密碼
                 <input className="ml-3 pl-1 bg-gray-200"  type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 {/* 表單錯誤驗證 */}
                 {errors.password && <div className="text-rose-800 text-sm pl-14 sm:pl-16 leading-7">{errors.password}</div>}
             </div>
-            <div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>pass1234
-            {/* 本機運行的帳密<div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>test01</span>，密碼<span style={{ color: '#06F' }}>1234*/}
+            <div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>albumtester01</span>，密碼<span style={{ color: '#06F' }}>thisispass1234
+            {/* 本機運行的帳密<div className="mb-4 text-center">預設值 : 帳號<span style={{ color: '#06F' }}>albumtester01</span>，密碼<span style={{ color: '#06F' }}>thisispass1234*/}
             </span></div>
             <div className="mb-4 text-center flex justify-center">
               <div className="relative inline-block">
@@ -139,7 +142,8 @@ export default function Login() {
         </div>
       </div>
       {/* snackbar提示訊息 */}
-      <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
+      <SnackbarAlert ></SnackbarAlert>
+      {/* <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/> */}
       {/* <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={closeSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <Alert onClose={closeSnackbar} severity={snackbarType} variant="filled" sx={{ width: '100%' }}>
           {snackbarMes}

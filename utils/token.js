@@ -13,7 +13,7 @@ export async function verifyToken(token){
     );
       return response.data.success;
     } catch (error) {
-      console.error('驗證Token失敗:', error);
+      //console.error('驗證Token失敗:', error);
       return false;
     }
   }

@@ -7,6 +7,8 @@ import Head from 'next/head';
 import { HiCog, HiOutlineLogout, HiReply, HiPencil, HiCheck } from "react-icons/hi";    
 import SnackbarAlert from '../../components/SnackbarAlert'   //提示訊息 
 import Confirm from '../../components/Confirm'               //確認對話框
+import { useSnackbar } from '../../context/SnackbarContext';       //引入 useSnackbar
+import { useConfirm } from '../../context/ConfirmContext';         //引入 useConfirm
 import { verifyToken } from '../../utils/token';             //驗證token
 
 export default function AlbumUpdate() {
@@ -19,11 +21,13 @@ export default function AlbumUpdate() {
     album_place: '',
     album_desc: '',
   });
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMes, setSnackbarMes] = useState('');
-  const [snackbarType, setSnackbarType] = useState('error');
-  const [dialogOpen, setDialogOpen] = useState(false);  //dialog開關
-  const [dialogType, setDialogType] = useState('');     //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  // const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // const [snackbarMes, setSnackbarMes] = useState('');
+  // const [snackbarType, setSnackbarType] = useState('error');
+  // const [dialogOpen, setDialogOpen] = useState(false);  //dialog開關
+  // const [dialogType, setDialogType] = useState('');     //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  const { openSnackbar } = useSnackbar();                  //從 context 獲取 openSnackbar
+  const { openDialog } = useConfirm();                     //從 context 獲取 openDialog
   const frontApiUrl = process.env.NEXT_PUBLIC_FRONT_API_URL || 'http://localhost:3000';
 
 
@@ -33,11 +37,11 @@ export default function AlbumUpdate() {
     const checkToken = async () => {
       const token = localStorage.getItem('token');
       if (!token || !(await verifyToken(token))) {
-        console.log('Token無效');
+        //console.log('Token無效');
         localStorage.removeItem('token');
         router.push('/login');
       } else {
-        console.log('Token驗證成功');
+        //console.log('Token驗證成功');
         //console.log('Token驗證成功:', response.data.decoded);
       }
     };
@@ -59,7 +63,7 @@ export default function AlbumUpdate() {
             })
       )
       .catch(error => {
-        console.error('取資料失敗:', error);
+        //console.error('取資料失敗:', error);
       });
     }
   }, [albumId]);
@@ -102,28 +106,30 @@ export default function AlbumUpdate() {
     try {
       //const response = await axios.post(`http://localhost/album_nextjs/server/editalbum.php?albumId=${albumId}`, params);
       const response = await axios.post(`${frontApiUrl}/api/editalbum/${albumId}`, params);
-      console.log(response.data);
+      //console.log(response.data);
       if (response.status === 200) {
         router.push(`/photo_manage/${albumId}`);
       }
     } catch (error) {
        //alert('更新相簿資訊失敗');
        //顯示訊息提示
-       setSnackbarMes('更新相簿資訊失敗');
-       setSnackbarType('error');
-       setSnackbarOpen(true);
+      //  setSnackbarMes('更新相簿資訊失敗');
+      //  setSnackbarType('error');
+      //  setSnackbarOpen(true);
+       openSnackbar('更新相簿資訊失敗','error',true); 
     }
   };
 
   //關掉Snackbar
-  const closeSnackbar = (event, reason) => {
-    setSnackbarOpen(false);
-  };
+  // const closeSnackbar = (event, reason) => {
+  //   setSnackbarOpen(false);
+  // };
 
   //把登出確認框打開
   const openLogoutDialog = () => {
-      setDialogType('logout');
-      setDialogOpen(true);
+      // setDialogType('logout');
+      // setDialogOpen(true);
+      openDialog('logout',true)
   };
   //登出
   const logout = () => {
@@ -158,7 +164,7 @@ export default function AlbumUpdate() {
         <div className="h-[2%] sm:h-1/6"></div>
         {/* 網站標題跟按鈕 */}
         <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-            <div className="mb-4 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+            <div className="mb-4 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
               <Link href="/">
                 <Image
                     src="/images/title.png?v2"
@@ -166,7 +172,6 @@ export default function AlbumUpdate() {
                     width={420}
                     height={113}
                     priority
-                    className='max-w-[88%] sm:max-w-[100%]'
                     //style={{ width: '100%', height: 'auto' }} 
                 />
               </Link>
@@ -222,9 +227,11 @@ export default function AlbumUpdate() {
           </form>
         </div>
         {/* snackbar提示訊息 */}
-        <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
+        <SnackbarAlert ></SnackbarAlert>
+        {/* <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/> */}
         {/* confirm dialog提示訊息 */}
-        <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} logout={logout}/>
+        <Confirm logout={logout}/>
+        {/* <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} logout={logout}/> */}
     </div>
   );
 }

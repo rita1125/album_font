@@ -5,11 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
 import { HiLibrary, HiTrash, HiPlus, HiCog, HiOutlineLogout } from "react-icons/hi";    
-import Pagination from '../components/Pagination';        //分頁
-import Confirm from '../components/Confirm'               //確認對話框
-import SnackbarAlert from '../components/SnackbarAlert'   //提示訊息
-import { verifyToken } from '../utils/token';             //驗證token
-import CircularProgress from '@mui/material/CircularProgress';
+import Pagination from '../components/Pagination';              //分頁
+import SnackbarAlert from '../components/SnackbarAlert'         //提示訊息
+import Confirm from '../components/Confirm'                     //確認對話框
+import { useSnackbar } from '../context/SnackbarContext';       //引入 useSnackbar
+import { useConfirm } from '../context/ConfirmContext';         //引入 useConfirm
+import { verifyToken } from '../utils/token';                   //驗證token
+import CircularProgress from '@mui/material/CircularProgress';  //loading
+
 
 const AlbumManage = () => {
   const [albums, setAlbums] = useState([]);
@@ -18,11 +21,13 @@ const AlbumManage = () => {
   const [nowPage, setNowPage] = useState(0);  //0當第1頁，設定當前頁面是第幾頁
   const itemsInPage = 4;   //4個為一頁
   const pageRef = useRef(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); //Snackbar開關 
-  const [snackbarMes, setSnackbarMes] = useState(''); //Snackbar訊息
-  const [snackbarType, setSnackbarType] = useState('error'); //Snackbar類型
-  const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
-  const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  // const [snackbarOpen, setSnackbarOpen] = useState(false); //Snackbar開關 
+  // const [snackbarMes, setSnackbarMes] = useState(''); //Snackbar訊息
+  // const [snackbarType, setSnackbarType] = useState('error'); //Snackbar類型
+  //const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
+  //const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除 : deleteAlbum、deletePhoto 或 登出 :logout)
+  const { openSnackbar } = useSnackbar();         //從 context 獲取 openSnackbar
+  const { openDialog } = useConfirm();            //從 context 獲取 openDialog
   const [delAlbumId, setdelAlbumId] = useState(null);  //儲存要刪除的相簿ID
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
   const [loading, setLoading] = useState(true);        //loading
@@ -34,11 +39,11 @@ const AlbumManage = () => {
     const checkToken = async () => {
       const token = localStorage.getItem('token');
       if (!token || !(await verifyToken(token))) {
-        console.log('Token無效');
+        //console.log('Token無效');
         localStorage.removeItem('token');
         router.push('/login');
       } else {
-        console.log('Token驗證成功');
+        //console.log('Token驗證成功');
         //console.log('Token驗證成功:', response.data.decoded);
       }
     };
@@ -90,7 +95,7 @@ const AlbumManage = () => {
         //console.log(res.data.albums)
       })
       .catch(error => {
-        console.error("GET manage error! ", error); 
+        //console.error("GET manage error! ", error); 
       })
       .finally(() =>{
         setLoading(false);
@@ -101,8 +106,9 @@ const AlbumManage = () => {
   //把刪除相簿的確認框打開
   const openDelDialog = (albumId) => {
     setdelAlbumId(albumId);
-    setDialogType('deleteAlbum');
-    setDialogOpen(true);
+    // setDialogType('deleteAlbum');
+    // setDialogOpen(true);
+    openDialog('deleteAlbum',true);
   };
   //刪除相簿
   const deleteAlbum = () => {
@@ -120,9 +126,10 @@ const AlbumManage = () => {
       .then(() => {
         //alert('相簿已刪除');
         //顯示訊息提示
-        setSnackbarMes('相簿已刪除');
-        setSnackbarType('success');
-        setSnackbarOpen(true);
+        //setSnackbarMes('相簿已刪除');
+        //setSnackbarType('success');
+        //setSnackbarOpen(true);
+        openSnackbar('相簿已刪除','success',true); 
 
         //更新相簿
         const updateAlbums = albums.filter(album => album.album_id !== delAlbumId);
@@ -130,7 +137,7 @@ const AlbumManage = () => {
 
         //此頁面是否還有相簿，有的話把相簿物件保存在 albumInThisPage變數
         const albumInThisPage = updateAlbums.slice(nowPage * itemsInPage, (nowPage + 1) * itemsInPage);//slice(起始index，結束index前停止提取) ，slice(0,4)提取 index 0~index 3
-        console.log(albumInThisPage)  
+        //console.log(albumInThisPage)  
         if (albumInThisPage.length === 0 && nowPage > 1) {  //若刪除後，此頁面沒有任何相簿，就把所處頁數 - 1，重新載入前一頁的資料
           setNowPage(nowPage - 1);  //設定頁面往前一頁
         }
@@ -138,7 +145,8 @@ const AlbumManage = () => {
       .catch(error => console.error("刪除相簿時出錯: ", error))
       .finally(() => {
         //關閉confirm對話框
-        setDialogOpen(false);
+        //setDialogOpen(false);
+        openDialog('',false)
         setdelAlbumId(null);
       });
     }
@@ -147,8 +155,9 @@ const AlbumManage = () => {
 
   //把登出確認框打開
   const openLogoutDialog = () => {
-    setDialogType('logout');
-    setDialogOpen(true);
+    // setDialogType('logout');
+    // setDialogOpen(true);
+    openDialog('logout',true);
   };
   //登出
   const logout = () => {
@@ -174,13 +183,13 @@ const AlbumManage = () => {
 
 
   //關掉Snackbar
-  const closeSnackbar = (event, reason) => {
-    //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
-    // if (reason === 'clickaway') {
-    //   return;
-    // }
-    setSnackbarOpen(false);
-  };
+  // const closeSnackbar = (event, reason) => {
+  //   //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
+  //   if (reason === 'clickaway') {
+  //     return;
+  //   }
+  //   setSnackbarOpen(false);
+  // };
 
   return (
     <div className="container mx-auto px-4 w-full md:w-[70%] h-screen flex flex-col">
@@ -291,14 +300,16 @@ const AlbumManage = () => {
       {/* 分頁按鈕 */}
       { !loading && albums.length > 0 && (<Pagination albums={albums} pageCount={pageCount} pageClick={pageClick} />) }
       {/* snackbar提示訊息 */}
-      <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
+      <SnackbarAlert ></SnackbarAlert>
+      {/* <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/> */}
       {/* <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={closeSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <Alert onClose={closeSnackbar} severity={snackbarType} variant="filled" sx={{ width: '100%' }}>
           {snackbarMes}
         </Alert>
       </Snackbar> */}
       {/* confirm dialog提示訊息 */}
-      <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} deleteAlbum={deleteAlbum} logout={logout}/>
+      <Confirm deleteAlbum={deleteAlbum} logout={logout}/>
+      {/* <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} deleteAlbum={deleteAlbum} logout={logout}/> */}
       {/* <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>刪除不可復原</DialogTitle>
         <DialogContent>

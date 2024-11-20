@@ -33,7 +33,7 @@ export default function Home() {
         const res = await axios.get(`/albums`);
         setAlbums(res.data.albums);
       } catch (error) {
-        console.error("GET albums error! ", error);
+        //console.error("GET albums error! ", error);
       } finally {
         setLoading(false); 
       }
@@ -74,7 +74,7 @@ export default function Home() {
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
           <Link href="/">
             <Image
               src="/images/title.png?v2"
@@ -82,7 +82,6 @@ export default function Home() {
               width={420}
               height={113}
               priority
-              className='max-w-[88%] sm:max-w-[100%]'
               // style={{ width: '100%', height: 'auto' }}  //使圖片的寬度為100%的父元素尺寸，高度自動調整，保持原始寬高比
             />
           </Link>

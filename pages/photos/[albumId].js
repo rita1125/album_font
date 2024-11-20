@@ -86,7 +86,7 @@ export default function PhotosPage({ thisAlbum, photos }) {
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題跟按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
           <Link href="/">
             <Image
               src="/images/title.png?v2"
@@ -94,7 +94,6 @@ export default function PhotosPage({ thisAlbum, photos }) {
               width={420}
               height={113}
               priority
-              className='max-w-[88%] sm:max-w-[100%]'
             />
           </Link>
         </div>
@@ -142,18 +141,31 @@ export default function PhotosPage({ thisAlbum, photos }) {
               <Link href={`/photoShow/${photo.photo_id}`} key={photo.photo_id}>
                 <div>
                   {/* 圖片的容器，設置固定尺寸和 overflow-hidden */}
-                  <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
+                  <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2 relative">
                       {/* 優先 :若 DB有 imgur_link，顯示imgur的縮圖 */}
                       { photo.imgur_link && (
-                        <img src={photo.imgur_resize_link} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
-                        ) 
+                        // <img src={photo.imgur_resize_link} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                        <Image
+                          src={photo.imgur_resize_link}
+                          alt={thisAlbum.album_name}
+                          fill
+                          priority
+                          className="object-cover rounded-t-lg "
+                        />    
+                       ) 
                       }
                       {/* 若 DB 無 imgur_link，顯示本機圖片 */}
                       { !photo.imgur_link && (
-                        <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                        <Image
+                          src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} 
+                          alt={thisAlbum.album_name}
+                          fill
+                          priority
+                          className="object-cover rounded-t-lg "
+                        />    
+                        // <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
                         ) 
                       }
-                    <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
                   </div>
                   <p className="flex items-center justify-center font-bold text-rose-900 hover:text-rose-700 focus:text-rose-700 text-center text-lg sm:text-xl">
                     <HiZoomIn className="mr-1" />

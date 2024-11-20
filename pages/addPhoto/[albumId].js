@@ -7,6 +7,8 @@ import Head from 'next/head';
 import { HiLibrary, HiPlus, HiCog, HiOutlineLogout, HiReply } from "react-icons/hi";    
 import SnackbarAlert from '../../components/SnackbarAlert'      //提示訊息 
 import Confirm from '../../components/Confirm'                  //確認對話框
+import { useSnackbar } from '../../context/SnackbarContext';       //引入 useSnackbar
+import { useConfirm } from '../../context/ConfirmContext';         //引入 useConfirm
 import { verifyToken } from '../../utils/token';                //驗證token
 import CircularProgress from '@mui/material/CircularProgress';  //loading
 
@@ -14,11 +16,13 @@ export default function AddPhoto() {
   const [photos, setPhotos] = useState([]);
   const router = useRouter();
   const isHomepage = router.pathname === '/'; 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMes, setSnackbarMes] = useState('');
-  const [snackbarType, setSnackbarType] = useState('error');
-  const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
-  const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  // const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // const [snackbarMes, setSnackbarMes] = useState('');
+  // const [snackbarType, setSnackbarType] = useState('error');
+  // const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
+  // const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  const { openSnackbar } = useSnackbar();         //從 context 獲取 openSnackbar
+  const { openDialog } = useConfirm();            //從 context 獲取 openDialog
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
   const [loading, setLoading] = useState(false); 
 
@@ -28,11 +32,11 @@ export default function AddPhoto() {
     const checkToken = async () => {
       const token = localStorage.getItem('token');
       if (!token || !(await verifyToken(token))) {
-        console.log('Token無效');
+        //('Token無效');
         localStorage.removeItem('token');
         router.push('/login');
       } else {
-        console.log('Token驗證成功');
+        //console.log('Token驗證成功');
         //console.log('Token驗證成功:', response.data.decoded);
       }
     };
@@ -79,24 +83,27 @@ export default function AddPhoto() {
         setLoading(false);
         //alert('上傳失敗');
         //顯示訊息提示
-        setSnackbarMes('上傳失敗');
-        setSnackbarType('error');
-        setSnackbarOpen(true);
+        // setSnackbarMes('上傳失敗');
+        // setSnackbarType('error');
+        // setSnackbarOpen(true);
+        openSnackbar('上傳失敗','error',true); 
       }
     } catch (error) {
-      console.error(error);
+      setLoading(false);
+      //console.error(error);
       //alert('上傳過程中出錯');
       //顯示訊息提示
-      setSnackbarMes('上傳過程中出錯');
-      setSnackbarType('error');
-      setSnackbarOpen(true);
+      // setSnackbarMes('上傳過程中出錯');
+      // setSnackbarType('error');
+      // setSnackbarOpen(true);
+      openSnackbar('上傳過程中出錯','error',true); 
     }
   };
 
   //關掉Snackbar
-  const closeSnackbar = (event, reason) => {
-    setSnackbarOpen(false);
-  };
+  // const closeSnackbar = (event, reason) => {
+  //   setSnackbarOpen(false);
+  // };
 
   //多檔案上傳
   const fileUpload = (e) => {
@@ -106,8 +113,9 @@ export default function AddPhoto() {
 
   //把登出確認框打開
   const openLogoutDialog = () => {
-    setDialogType('logout');
-    setDialogOpen(true);
+    // setDialogType('logout');
+    // setDialogOpen(true);
+    openDialog('logout',true);
   };
   //登出
   const logout = () => {
@@ -136,7 +144,7 @@ export default function AddPhoto() {
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題與按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
           <Link href="/">
             <Image
               src="/images/title.png?v2"
@@ -144,7 +152,6 @@ export default function AddPhoto() {
               width={420}
               height={113}
               priority
-              className='max-w-[88%] sm:max-w-[100%]'
               //style={{ width: '100%', height: 'auto' }} 
             />
           </Link>
@@ -203,9 +210,11 @@ export default function AddPhoto() {
         )
       }
       {/* snackbar提示訊息 */}
-      <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
+      <SnackbarAlert ></SnackbarAlert>
+      {/* <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/> */}
       {/* confirm dialog提示訊息 */}
-      <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} logout={logout}/>
+      <Confirm logout={logout}/>
+      {/* <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} logout={logout}/> */}
     </div>
   );
 }

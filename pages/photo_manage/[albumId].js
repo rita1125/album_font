@@ -7,6 +7,8 @@ import Head from 'next/head';
 import {HiTrash, HiOutlineLogout, HiReply, HiCamera, HiPencil, HiPlus } from "react-icons/hi";   
 import Pagination from '../../components/Pagination';         //分頁 
 import SnackbarAlert from '../../components/SnackbarAlert'    //提示訊息
+import { useSnackbar } from '../../context/SnackbarContext';       //引入 useSnackbar
+import { useConfirm } from '../../context/ConfirmContext';         //引入 useConfirm
 import Confirm from '../../components/Confirm'                //確認對話框
 import { verifyToken } from '../../utils/token';             //驗證token
 import CircularProgress from '@mui/material/CircularProgress';  //loading
@@ -46,12 +48,14 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
   const [nowPage, setNowPage] = useState(0);    //0當第1頁
   const itemsInPage = 4;   //4個為一頁
   const pageRef = useRef(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); //Snackbar開關 
-  const [snackbarMes, setSnackbarMes] = useState(''); //Snackbar訊息
-  const [snackbarType, setSnackbarType] = useState('error'); //Snackbar類型
-  const [dialogOpen, setDialogOpen] = useState(false); //dialog開關
-  const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
-  const [delPhotoId, setdelPhotoId] = useState(null);  //儲存要刪除的圖片ID
+  // const [snackbarOpen, setSnackbarOpen] = useState(false);       //Snackbar開關 
+  // const [snackbarMes, setSnackbarMes] = useState('');            //Snackbar訊息
+  // const [snackbarType, setSnackbarType] = useState('error');     //Snackbar類型
+  // const [dialogOpen, setDialogOpen] = useState(false);           //dialog開關
+  // const [dialogType, setDialogType] = useState('');    //儲存確認框的類型(刪除deleteAlbum、deletePhoto 或 登出logout)
+  const { openSnackbar } = useSnackbar();                 //從 context 獲取 openSnackbar
+  const { openDialog } = useConfirm();                    //從 context 獲取 openDialog
+  const [delPhotoId, setdelPhotoId] = useState(null);     //儲存要刪除的圖片ID
   const serverApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost/album_nextjs/server';
   const [loading, setLoading] = useState(true); 
 
@@ -61,11 +65,11 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
     const checkToken = async () => {
       const token = localStorage.getItem('token');
       if (!token || !(await verifyToken(token))) {
-        console.log('Token無效');
+        //console.log('Token無效');
         localStorage.removeItem('token');
         router.push('/login');
       } else {
-        console.log('Token驗證成功');
+        //console.log('Token驗證成功');
         //console.log('Token驗證成功:', response.data.decoded);
       }
     };
@@ -116,8 +120,9 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
   //把刪除圖片的確認框打開
   const openDelDialog = (photoID) => {
     setdelPhotoId(photoID);
-    setDialogType('deletePhoto');
-    setDialogOpen(true);
+    // setDialogType('deletePhoto');
+    // setDialogOpen(true);
+    openDialog('deletePhoto',true)
   };
   // 刪除圖片的函數
   const deletePhoto = () => {
@@ -138,9 +143,10 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
       .then(() => {
         //alert('圖片已刪除');
         //顯示訊息提示
-        setSnackbarMes('圖片已刪除');
-        setSnackbarType('success');
-        setSnackbarOpen(true);
+        // setSnackbarMes('圖片已刪除');
+        // setSnackbarType('success');
+        // setSnackbarOpen(true);
+        openSnackbar('圖片已刪除','success',true); 
 
         //更新 photos 狀態，將被刪除的圖片移除
         const updatePhotos = photos.filter(photo => photo.photo_id !== delPhotoId);
@@ -148,18 +154,19 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
 
         //此頁面是否還有圖片，有的話把圖片物件保存在 photoInThisPage變數
         const photoInThisPage = updatePhotos.slice(nowPage * itemsInPage, (nowPage + 1) * itemsInPage);//slice(起始index，結束index前停止提取) ，slice(0,4)提取 index 0~index 3
-        console.log(photoInThisPage)  
+        //console.log(photoInThisPage)  
         if (photoInThisPage.length === 0 && nowPage > 0) {  //若刪除後，此頁面沒有任何圖片，就把所處頁數 - 1，重新載入前一頁的資料
           setNowPage(nowPage - 1);  //設定頁面往前一頁
         }
 
       })
       .catch(error => {
-        console.error("刪除圖片時出錯: ", error);
+        //console.error("刪除圖片時出錯: ", error);
       })
       .finally(() => {
         //關閉confirm對話框
-        setDialogOpen(false);
+        //setDialogOpen(false);
+        openDialog('',false)
         setdelPhotoId(null);
         //關閉loading
         setLoading(false)
@@ -182,8 +189,9 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
 
   //把登出確認框打開
    const openLogoutDialog = () => {
-    setDialogType('logout');
-    setDialogOpen(true);
+    // setDialogType('logout');
+    // setDialogOpen(true);
+    openDialog('logout',true);
   };
   //登出
   const logout = () => {
@@ -194,13 +202,13 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
   };
 
   //關掉Snackbar
-  const closeSnackbar = (event, reason) => {
-    //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
-    // if (reason === 'clickaway') {
-    //   return;
-    // }
-    setSnackbarOpen(false);
-  };
+  // const closeSnackbar = (event, reason) => {
+  //   //當使用者點擊背景會觸發clickaway，下面是不允許點擊背景來關閉snackbar
+  //   // if (reason === 'clickaway') {
+  //   //   return;
+  //   // }
+  //   setSnackbarOpen(false);
+  // };
 
   return (
     <div className="container mx-auto px-4 w-full md:w-[70%] h-screen flex flex-col">
@@ -221,7 +229,7 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
       <div className="h-[2%] sm:h-1/6"></div>
       {/* 網站標題跟按鈕 */}
       <div className="A flex flex-col sm:flex-row justify-between items-center max-h-max sm:max-h-none sm:h-1/6">
-        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start">
+        <div className="mb-3 flex justify-center sm:justify-start sm:mb-7 sm:flex-start max-w-[88%] sm:max-w-[100%]">
           <Link href="/">
             <Image
               src="/images/title.png?v2"
@@ -229,7 +237,6 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
               width={420}
               height={113}
               priority
-              className='max-w-[88%] sm:max-w-[100%]'
               //style={{ width: '100%', height: 'auto' }} 
             />
           </Link>
@@ -285,15 +292,29 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
           <div ref={pageRef} className="C grid justify-center sm:grid-cols-2 md:grid-cols-4 gap-4 mx-auto w-full h-[24rem] overflow-y-scroll overflow-x-hidden sm:h-auto sm:overflow-visible">
             {newPhotos.map(photo => (
               <div key={photo.photo_id}>
-                <div className="w-72 sm:w-full h-48 bg-white overflow-hidden rounded-lg mb-2">
+                <div className="w-72 sm:w-full h-48 bg-white  rounded-lg mb-2 relative">
                   {/* 優先 :若 DB有 imgur_link，顯示imgur的縮圖 */}
                   { photo.imgur_link && (
-                    <img src={photo.imgur_resize_link} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
-                    ) 
+                    // <img src={photo.imgur_resize_link} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                    <Image
+                      src={photo.imgur_resize_link}
+                      alt={thisAlbum.album_name}
+                      fill
+                      priority
+                      className="object-cover rounded-t-lg "
+                    />  
+                  ) 
                   }
                   {/* 若 DB 無 imgur_link，顯示本機圖片 */}
                   { !photo.imgur_link && (
-                     <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" />
+                    <Image
+                      src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} 
+                      alt={thisAlbum.album_name}
+                      fill
+                      priority
+                      className="object-cover rounded-t-lg "
+                    />  
+                    //  <img src={`${serverApiUrl}/public/images/thumbnail/${photo.photo_file}`} alt={thisAlbum.album_name} className="w-full h-full object-cover" loading="lazy"/>
                     ) 
                   }
                 </div>
@@ -308,9 +329,11 @@ const photoManage = ({ thisAlbum, photos: initialPhotos }) => {
       {/* 分頁按鈕 */}
       { !loading && photos.length > 0 && (<Pagination photos={photos} pageCount={pageCount} pageClick={pageClick} />) }
       {/* snackbar提示訊息 */}
-       <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/>
+      <SnackbarAlert ></SnackbarAlert>
+      {/* <SnackbarAlert snackbarOpen={snackbarOpen} snackbarType={snackbarType} snackbarMes={snackbarMes} closeSnackbar={closeSnackbar}/> */}
       {/* confirm dialog提示訊息 */}
-      <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} deletePhoto={deletePhoto} logout={logout}/>
+      <Confirm deletePhoto={deletePhoto} logout={logout}/>
+      {/* <Confirm dialogType={dialogType} dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} deletePhoto={deletePhoto} logout={logout}/> */}
     </div>
   );
 };
