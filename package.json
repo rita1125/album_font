@@ -20,7 +20,7 @@
     "react-paginate": "^8.2.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": "v20.x"
   },
   "devDependencies": {
     "@types/node": "^22.5.2",
