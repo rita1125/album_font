@@ -138,7 +138,7 @@ const AlbumManage = () => {
         //此頁面是否還有相簿，有的話把相簿物件保存在 albumInThisPage變數
         const albumInThisPage = updateAlbums.slice(nowPage * itemsInPage, (nowPage + 1) * itemsInPage);//slice(起始index，結束index前停止提取) ，slice(0,4)提取 index 0~index 3
         //console.log(albumInThisPage)  
-        if (albumInThisPage.length === 0 && nowPage > 1) {  //若刪除後，此頁面沒有任何相簿，就把所處頁數 - 1，重新載入前一頁的資料
+        if (albumInThisPage.length === 0 && nowPage > 0) {  //若刪除後，此頁面沒有任何相簿，就把所處頁數 - 1，重新載入前一頁的資料
           setNowPage(nowPage - 1);  //設定頁面往前一頁
         }
       })
