@@ -50,7 +50,6 @@ export default function AddAlbum() {
 
   const addAlbumSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     const formData = new FormData();
     //加相簿各資訊、圖片給 formData
@@ -75,24 +74,38 @@ export default function AddAlbum() {
 
     try {
       //const response = await axios.post('http://localhost/album_nextjs/server/addAlbum.php', formData, {
-      const response = await axios.post(`${serverApiUrl}/addAlbum.php`, formData, {
-        // 已經使用 FormData，不需要額外在 axios.post 指定 headers: { 'Content-Type': 'multipart/form-data' }，因為 axios 會自動根據 FormData 類型來設定正確的 Content-Type
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
-      });
-      if (response.data.success) {
-        setLoading(false);
-        router.push('/album_manage');
-      } else {
-        setLoading(false);
-        //alert('上傳失敗');
-        //顯示訊息提示
-        // setSnackbarMes('上傳失敗');
-        // setSnackbarType('error');
-        // setSnackbarOpen(true);
-        openSnackbar('上傳失敗','error',true); 
+      //加入節流機制 now - timer >= 1000
+      let now = Date.now();
+      let timer = localStorage.getItem('timer') || 0 ;
+      if(now - timer >= 1000){
+        setLoading(true);
+        localStorage.setItem('timer', now);
+        await axios.post(`${serverApiUrl}/addAlbum.php`, formData, {
+          // 已經使用 FormData，不需要額外在 axios.post 指定 headers: { 'Content-Type': 'multipart/form-data' }，因為 axios 會自動根據 FormData 類型來設定正確的 Content-Type
+          // headers: {
+          //   'Content-Type': 'multipart/form-data',
+          // },
+        }).then( 
+          (response) =>{
+            setLoading(false);
+            setTimeout(()=>{
+              localStorage.removeItem('timer');
+            },2000);
+            router.push('/album_manage');
+            //console.log(response);
+          }
+        ).catch((err)=>{
+            setLoading(false);
+            //顯示訊息提示
+            // setSnackbarMes('上傳過程中出錯');
+            // setSnackbarType('error');
+            // setSnackbarOpen(true);
+            openSnackbar('上傳失敗','error',true); 
+            //console.log(err)
+          }
+        )
       }
+      
     } catch (error) {
       setLoading(false);
       //console.error(error);
